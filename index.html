@@ -114,10 +114,15 @@
                 </div>
             </div>
 
-            <button @click="smsModalOpen = false; window.location.href = 'https://pay.ziina.com/Kahild/V6LtQdJxV?source=app'" class="w-full py-3 rounded-xl bg-terracotta hover:bg-terracotta-dark text-white font-medium text-xs transition shadow-sm flex items-center justify-center gap-2">
-                <span x-text="lang === 'ar' ? 'متابعة للدفع الإلكتروني' : 'Continue to Payment'"></span>
-                <i class="fa-solid fa-arrow-left text-xs" :class="lang === 'ar' ? '' : 'rotate-180'"></i>
-            </button>
+            <div class="flex gap-2">
+                <button @click="smsModalOpen = false" class="w-1/2 py-3 rounded-xl border border-chai-300/30 hover:bg-white/5 text-white font-medium text-xs transition">
+                    إغلاق المعاينة
+                </button>
+                <button @click="smsModalOpen = false; window.location.href = 'https://pay.ziina.com/Kahild/V6LtQdJxV?source=app'" class="w-1/2 py-3 rounded-xl bg-terracotta hover:bg-terracotta-dark text-white font-medium text-xs transition shadow-sm flex items-center justify-center gap-1.5">
+                    <span>رابط الدفع الفعلي</span>
+                    <i class="fa-solid fa-arrow-left text-[10px]" :class="lang === 'ar' ? '' : 'rotate-180'"></i>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -381,10 +386,19 @@
                         </div>
                     </div>
 
-                    <button @click="checkout()" class="w-full py-3.5 rounded-full bg-terracotta hover:bg-terracotta-dark text-white font-medium text-sm transition shadow-sm flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-check text-xs"></i>
-                        <span x-text="lang === 'ar' ? 'تم، ادفع الحين' : 'Confirm & Pay'">تم، ادفع الحين</span>
-                    </button>
+                    <div class="space-y-2">
+                        <!-- زر الدفع الفعلي -->
+                        <button @click="checkout()" class="w-full py-3 rounded-full bg-terracotta hover:bg-terracotta-dark text-white font-medium text-xs transition shadow-sm flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-check text-xs"></i>
+                            <span x-text="lang === 'ar' ? 'تم، ادفع الحين (رابط خارجي)' : 'Confirm & Pay'">تم، ادفع الحين</span>
+                        </button>
+
+                        <!-- زر تجربة الدفع والـ SMS (Test Mode) تحت آخر شي -->
+                        <button @click="testCheckoutSMS()" class="w-full py-2.5 rounded-full border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-300 font-medium text-xs transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-vial text-xs"></i>
+                            <span>تجربة محاكاة الدفع والـ SMS (اختبار)</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -492,20 +506,34 @@
                         alert(this.lang === 'ar' ? 'يا ريت تكتب اسمك قبل لا تكمل الطلب' : 'Please enter your name before completing the order');
                         return;
                     }
+                    window.location.href = 'https://pay.ziina.com/Kahild/V6LtQdJxV?source=app';
+                },
+                testCheckoutSMS() {
+                    if (!this.customerName.trim()) {
+                        this.customerName = 'يزيد (تجريبي)';
+                    }
+                    if (this.cart.length === 0) {
+                        // إضافة منتج افتراضي للتجربة السريعة إذا كانت السلة فارغة
+                        this.cart.push({
+                            id: 1,
+                            nameAr: 'شاي أحمر',
+                            nameEn: 'Red Tea',
+                            image: 'https://media.discordapp.net/attachments/1552084312826843297/1552297229891670098/image-Photoroom.png?ex=6ab518f3&is=6ab3c773&hm=7eb5878ffe54ebebd378d9709027781147c033c63d611b6dc5e0edc9e403362a&=&format=webp&quality=lossless&width=1280&height=1216',
+                            size: { name: 'Cup Tea', nameAr: 'شاي احمر', nameEn: 'Cup', price: 1 },
+                            quantity: 1
+                        });
+                    }
 
-                    // توليد رقم فاتورة عشوائي (مثال: INV-84729)
+                    // توليد رقم فاتورة عشوائي للتجربة
                     const randomInvoice = 'INV-' + Math.floor(10000 + Math.random() * 90000);
                     
-                    // إعداد بيانات الـ SMS
                     this.smsData = {
-                        greeting: this.lang === 'ar' ? `هلا بك يا ${this.customerName}!` : `Hello ${this.customerName}!`,
-                        msg: this.lang === 'ar' ? 'تمت عملية الدفع بنجاح! شكراً لطلبك من شاي طمام، وجاري تحضير الكوب اللي يظبط راسك.' : 'Payment completed successfully! Thank you for ordering from Chai Tamam.',
+                        greeting: `هلا بك يا ${this.customerName}!`,
+                        msg: 'تمت عملية الدفع بنجاح! شكراً لطلبك من شاي طمام، وجاري تحضير الكوب اللي يظبط راسك.',
                         invoiceId: randomInvoice,
                         total: this.cartTotal
                     };
 
-                    // إغلاق السلة وإظهار رسالة الـ SMS
-                    this.cartOpen = false;
                     this.smsModalOpen = true;
                 }
             }
