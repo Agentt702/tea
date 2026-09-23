@@ -490,20 +490,10 @@
                     const cleanName = this.sanitizeInput(this.customerName.trim());
 
                     // تجهيز تفاصيل اللوق (الطلب) بشكل آمن
-                    const orderLog = {
-                        customer: cleanName,
-                        paymentMethod: this.paymentMethod,
-                        total: this.cartTotal + ' AED',
-                        items: this.cart,
-                        timestamp: new Date().toISOString()
-                    };
+
 
                     // إرسال البيانات للويب هوك بشكل آمن مع معالجة الأخطاء
-                    fetch('https://discord.com/api/webhooks/1552312540065693796/hbVtVCQH3wpWYViwIx5mMhgd5oSN--WXo9HtxvIs4BtwH6rjgyqNX3l2_FW0fRafp186', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(orderLog)
-                    }).catch(err => console.error("Secure Log Error"));
+
 
                     // الانتقال الآمن إلى رابط الدفع المعتمد
                     window.location.href = 'https://pay.ziina.com/Kahild/V6LtQdJxV?source=app';
