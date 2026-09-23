@@ -221,7 +221,7 @@
                             <p class="text-xs text-chai-200 line-clamp-2 mb-4" x-text="lang === 'ar' ? product.descAr : product.descEn"></p>
 
                             <div class="space-y-1.5 mb-4">
-                                <label class="text-[11px] font-semibold text-chai-100 uppercase tracking-wider" x-text="lang === 'ar' ? 'الحجم:' : 'Size:'">الحجم:</label>
+                                <label class="text-[11px] font-semibold text-chai-100 uppercase tracking-wider" x-text="lang === 'ar' ? 'النوع:' : 'Size:'">النوع:</label>
                                 <div class="grid grid-cols-1 gap-2">
                                     <template x-for="size in product.sizes" :key="size.name">
                                         <button @click="product.selectedSize = size"
