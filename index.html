@@ -3,12 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    
-    <!-- 🛡️ ترويسات الأمان المضافة -->
-    <meta http-equiv="X-Content-Type-Options" content="nosniff">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
-
     <title x-text="lang === 'ar' ? 'شاي طمام' : 'Chai Tamam'">شاي طمام</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -334,7 +328,7 @@
                 <div class="p-6 border-t border-chai-300/15 space-y-4" x-show="cart.length > 0">
                     <div class="space-y-1.5">
                         <label class="text-[11px] font-semibold text-chai-100 uppercase tracking-wider" x-text="lang === 'ar' ? 'اسمك الكريم' : 'Your Name'">اسمك</label>
-                        <input type="text" x-model="customerName" maxlength="50" :placeholder="lang === 'ar' ? 'اكتب اسمك هنا...' : 'Enter your name...'" class="border border-chai-300/25 rounded-lg px-3 py-2.5 w-full text-xs text-white focus:outline-none focus:border-terracotta" style="background-color: rgba(255,255,255,0.03);">
+                        <input type="text" x-model="customerName" :placeholder="lang === 'ar' ? 'اكتب اسمك هنا...' : 'Enter your name...'" class="border border-chai-300/25 rounded-lg px-3 py-2.5 w-full text-xs text-white focus:outline-none focus:border-terracotta" style="background-color: rgba(255,255,255,0.03);">
                     </div>
 
                     <div class="space-y-1.5">
@@ -398,7 +392,7 @@
                 <h4 class="font-bold text-white mb-3 text-sm" x-text="lang === 'ar' ? 'جديدنا' : 'Newsletter'">جديدنا</h4>
                 <p class="text-chai-200 mb-3" x-text="lang === 'ar' ? 'حط إيميلك عشان يوصلك كل جديد.' : 'Drop your email for updates.'">حط إيميلك عشان يوصلك كل جديد.</p>
                 <div class="flex gap-2">
-                    <input type="email" maxlength="100" :placeholder="lang === 'ar' ? 'بريدك الإلكتروني' : 'Your email'" class="border border-chai-300/25 rounded-lg px-3 py-2 w-full text-xs text-white focus:outline-none focus:border-terracotta" style="background-color: rgba(255,255,255,0.03);">
+                    <input type="email" :placeholder="lang === 'ar' ? 'بريدك الإلكتروني' : 'Your email'" class="border border-chai-300/25 rounded-lg px-3 py-2 w-full text-xs text-white focus:outline-none focus:border-terracotta" style="background-color: rgba(255,255,255,0.03);">
                     <button class="bg-terracotta hover:bg-terracotta-dark text-white px-4 py-2 rounded-lg font-medium transition" x-text="lang === 'ar' ? 'سجل' : 'Join'">سجل</button>
                 </div>
             </div>
@@ -417,7 +411,6 @@
                 cartOpen: false,   
                 customerName: '',
                 paymentMethod: 'applepay',
-                lastOrderTime: 0, // 🛡️ متغير لمنع السبام وإرسال الطلبات المتكررة
                 products: [
                     { 
                         id: 1, 
@@ -445,14 +438,6 @@
                     }                 
                 ],
                 cart: [],
-                
-                // 🛡️ دالة لتطهير النصوص المدخلة ضد حقن الأكواد (XSS Sanitizer)
-                sanitizeInput(input) {
-                    const div = document.createElement('div');
-                    div.textContent = input;
-                    return div.innerHTML;
-                },
-
                 toggleLanguage() {
                     this.lang = this.lang === 'ar' ? 'en' : 'ar';
                     document.documentElement.setAttribute('dir', this.lang === 'ar' ? 'rtl' : 'ltr');
@@ -470,32 +455,40 @@
                 get cartItemCount() { return this.cart.reduce((sum, item) => sum + item.quantity, 0); },
                 get cartSubtotal() { return this.cart.reduce((sum, item) => sum + (item.size.price * item.quantity), 0); },
                 get cartTotal() { return this.cartSubtotal; },
-
                 checkout() { 
-                    // 🛡️ فحص حماية: التحقق من خلو الحقل من الفراغات
                     if (!this.customerName.trim()) {
                         alert(this.lang === 'ar' ? 'يا ريت تكتب اسمك قبل لا تكمل الطلب' : 'Please enter your name before completing the order');
                         return;
                     }
 
-                    // 🛡️ حماية ضد الضغط المتكرر وإرسال السبام (Rate Limiting: 5 ثوانٍ بين كل طلب)
-                    const now = Date.now();
-                    if (now - this.lastOrderTime < 5000) {
-                        alert(this.lang === 'ar' ? 'الرجاء الانتظار قليلاً قبل إرسال طلب جديد.' : 'Please wait a moment before sending another order.');
-                        return;
-                    }
-                    this.lastOrderTime = now;
+                    // تجهيز تفاصيل اللوق (الطلب) لإرسالها أو حفظها
+                    const orderLog = {
+                        customer: this.customerName,
+                        paymentMethod: this.paymentMethod,
+                        total: this.cartTotal + ' AED',
+                        items: this.cart,
+                        timestamp: new Date().toISOString()
+                    };
 
-                    // 🛡️ تنظيف اسم العميل من أي رموز أو سكريبتات ضارة
-                    const cleanName = this.sanitizeInput(this.customerName.trim());
+                    // مثال على إرسال اللوق (يمكنك استبدال رابط الـ fetch بالباك إند أو الويب هوك الخاص بك مثل Discord Webhook أو سيرفرك)
+              
+                  console.log("Order Log:", JSON.stringify(orderLog, null, 2));
+                    
+                    // fetch('YOUR_WEBHOOK_OR_API_URL', {
+                    // method: 'POST',
+                    //      headers: { 'Content-Type': 'application/json' },
+                    //      body: JSON.stringify(orderLog)
+                    //  }).catch(err => console.log(err));
+                    /* 
+                    // إذا أردت إرسالها لـ Webhook أو API خاص بك مباشرة:
+                    // fetch('YOUR_WEBHOOK_OR_API_URL', {
+                    //     method: 'POST',
+                    //     headers: { 'Content-Type': 'application/json' },
+                    //     body: JSON.stringify(orderLog)
+                    // }).catch(err => console.log(err));
+                    */
 
-                    // تجهيز تفاصيل اللوق (الطلب) بشكل آمن
-
-
-                    // إرسال البيانات للويب هوك بشكل آمن مع معالجة الأخطاء
-
-
-                    // الانتقال الآمن إلى رابط الدفع المعتمد
+                    // الانتقال إلى رابط الدفع بعد تجهيز اللوق
                     window.location.href = 'https://pay.ziina.com/Kahild/V6LtQdJxV?source=app';
                 }
             }
