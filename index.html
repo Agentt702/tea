@@ -3,6 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    
+    <!-- 🛡️ ترويسات الأمان المضافة -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block">
+
     <title x-text="lang === 'ar' ? 'شاي طمام' : 'Chai Tamam'">شاي طمام</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -80,46 +86,6 @@
     </style>
 </head>
 <body class="text-chai-50 antialiased selection:bg-terracotta selection:text-white grain-overlay min-h-screen flex flex-col justify-between" x-data="chaiApp()">
-
-    <!-- محاكي رسالة الـ SMS -->
-    <div x-show="smsModalOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-        <div class="surface-card border border-terracotta/40 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-5 relative animate-in fade-in zoom-in duration-300">
-            <div class="flex items-center justify-between border-b border-chai-300/15 pb-4">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
-                        <i class="fa-solid fa-comment-sms text-lg"></i>
-                    </div>
-                    <div>
-                        <h4 class="font-bold text-sm text-white" x-text="lang === 'ar' ? 'رسالة نصية جديدة (SMS)' : 'New SMS Message'">رسالة نصية جديدة</h4>
-                        <span class="text-[10px] text-chai-200">Chai Tamam • الآن</span>
-                    </div>
-                </div>
-                <button @click="smsModalOpen = false" class="text-chai-200 hover:text-white">
-                    <i class="fa-solid fa-xmark text-lg"></i>
-                </button>
-            </div>
-
-            <div class="p-4 rounded-2xl bg-black/40 border border-chai-300/15 space-y-3 font-sans text-xs text-chai-100">
-                <p class="font-semibold text-white" x-text="smsData.greeting"></p>
-                <p x-text="smsData.msg"></p>
-                <div class="pt-2 border-t border-chai-300/15 space-y-1 text-[11px] text-chai-200">
-                    <div class="flex justify-between">
-                        <span x-text="lang === 'ar' ? 'رقم الفاتورة:' : 'Invoice No:'"></span>
-                        <span class="font-mono text-terracotta font-bold" x-text="smsData.invoiceId"></span>
-                    </div>
-                    <div class="flex justify-between">
-                        <span x-text="lang === 'ar' ? 'المبلغ المدفوع:' : 'Paid Amount:'"></span>
-                        <span class="text-white font-bold" x-text="smsData.total + ' درهم'"></span>
-                    </div>
-                </div>
-            </div>
-
-            <button @click="smsModalOpen = false; window.location.href = 'https://pay.ziina.com/Kahild/V6LtQdJxV?source=app'" class="w-full py-3 rounded-xl bg-terracotta hover:bg-terracotta-dark text-white font-medium text-xs transition shadow-sm flex items-center justify-center gap-2">
-                <span x-text="lang === 'ar' ? 'متابعة للدفع الإلكتروني' : 'Continue to Payment'"></span>
-                <i class="fa-solid fa-arrow-left text-xs" :class="lang === 'ar' ? '' : 'rotate-180'"></i>
-            </button>
-        </div>
-    </div>
 
     <div class="glow-field">
         <div class="glow-blob b1"></div>
@@ -199,6 +165,21 @@
                             قصتنا السريعة
                         </a>
                     </div>
+
+                    <div class="grid grid-cols-3 gap-6 pt-8 border-t border-chai-300/20 max-w-lg">
+                        <div>
+                            <p class="text-2xl font-bold font-arabic-serif text-white glow-text">١٠٠٪</p>
+                            <p class="text-xs text-chai-200" x-text="lang === 'ar' ? 'على الصرت' : 'Top Quality'">على الصرت</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold font-arabic-serif text-white glow-text">١ درهم</p>
+                            <p class="text-xs text-chai-200" x-text="lang === 'ar' ? 'سعر رمزي' : 'Best Price'">سعر رمزي</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold font-arabic-serif text-white glow-text">٥/٥</p>
+                            <p class="text-xs text-chai-200" x-text="lang === 'ar' ? 'تعديل مزاج' : 'Good Vibes'">تعديل مزاج</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="lg:col-span-5 relative" :class="lang === 'ar' ? '' : 'lg:order-2'">
                     <div class="relative mx-auto max-w-md surface-card rounded-3xl p-4 border shadow-lg">
@@ -270,8 +251,8 @@
             <div class="max-w-4xl mx-auto text-center space-y-6">
                 <span class="text-xs uppercase tracking-widest text-terracotta font-semibold" x-text="lang === 'ar' ? 'كيف بدأنا' : 'Our Story'">كيف بدأنا</span>
                 <h2 class="text-3xl sm:text-4xl font-arabic-serif font-bold text-white" x-text="lang === 'ar' ? 'قعدنا نفكر بمشروع... وقلن مالنا الا شاهي يعدل الراس' : 'We thought of a project... and settled on the ultimate tea'">قعدنا نفكر بمشروع... وقلن مالنا الا شاهي يعدل الراس</h2>
-                <p class="text-base sm:text-lg text-chai-100/80 leading-relaxed font-sans max-w-2xl mx-auto" x-text="lang === 'ar' ? 'السالفة وما فيها كنا قاعدين نفكر نسوي مشروع يجمعنا، وبعد طولة كلام وسوالف، استقرينا على الشيء الأبسط والأحلى: شاهي يظبط المزاج وبس.' : 'It all started with a simple brainstorming session, looking for something simple and great: just amazing tea to set the mood.'">
-                    السالفة وما فيها كنا قاعدين نفكر نسوي مشروع يجمعنا، وبعد طولة كلام وسوالف، استقرينا على الشيء الأبسط والأحلى: شاهي يظبط المزاج وبس.
+                <p class="text-base sm:text-lg text-chai-100/80 leading-relaxed font-sans max-w-2xl mx-auto" x-text="lang === 'ar' ? 'السالفة وما فيها كنا قاعدين نفكر نسوي مشروع يجمعنا، وبعد طولة كلام والسوالف، استقرينا على الشيء الأبسط والأحلى: شاهي يظبط المزاج وبس.' : 'It all started with a simple brainstorming session, looking for something simple and great: just amazing tea to set the mood.'">
+                    السالفة وما فيها كنا قاعدين نفكر نسوي مشروع يجمعنا، وبعد طولة كلام والسوالف، استقرينا على الشيء الأبسط والأحلى: شاهي يظبط المزاج وبس.
                 </p>
             </div>
         </section>
@@ -353,7 +334,7 @@
                 <div class="p-6 border-t border-chai-300/15 space-y-4" x-show="cart.length > 0">
                     <div class="space-y-1.5">
                         <label class="text-[11px] font-semibold text-chai-100 uppercase tracking-wider" x-text="lang === 'ar' ? 'اسمك الكريم' : 'Your Name'">اسمك</label>
-                        <input type="text" x-model="customerName" :placeholder="lang === 'ar' ? 'اكتب اسمك هنا...' : 'Enter your name...'" class="border border-chai-300/25 rounded-lg px-3 py-2.5 w-full text-xs text-white focus:outline-none focus:border-terracotta" style="background-color: rgba(255,255,255,0.03);">
+                        <input type="text" x-model="customerName" maxlength="50" :placeholder="lang === 'ar' ? 'اكتب اسمك هنا...' : 'Enter your name...'" class="border border-chai-300/25 rounded-lg px-3 py-2.5 w-full text-xs text-white focus:outline-none focus:border-terracotta" style="background-color: rgba(255,255,255,0.03);">
                     </div>
 
                     <div class="space-y-1.5">
@@ -417,7 +398,7 @@
                 <h4 class="font-bold text-white mb-3 text-sm" x-text="lang === 'ar' ? 'جديدنا' : 'Newsletter'">جديدنا</h4>
                 <p class="text-chai-200 mb-3" x-text="lang === 'ar' ? 'حط إيميلك عشان يوصلك كل جديد.' : 'Drop your email for updates.'">حط إيميلك عشان يوصلك كل جديد.</p>
                 <div class="flex gap-2">
-                    <input type="email" :placeholder="lang === 'ar' ? 'بريدك الإلكتروني' : 'Your email'" class="border border-chai-300/25 rounded-lg px-3 py-2 w-full text-xs text-white focus:outline-none focus:border-terracotta" style="background-color: rgba(255,255,255,0.03);">
+                    <input type="email" maxlength="100" :placeholder="lang === 'ar' ? 'بريدك الإلكتروني' : 'Your email'" class="border border-chai-300/25 rounded-lg px-3 py-2 w-full text-xs text-white focus:outline-none focus:border-terracotta" style="background-color: rgba(255,255,255,0.03);">
                     <button class="bg-terracotta hover:bg-terracotta-dark text-white px-4 py-2 rounded-lg font-medium transition" x-text="lang === 'ar' ? 'سجل' : 'Join'">سجل</button>
                 </div>
             </div>
@@ -436,13 +417,7 @@
                 cartOpen: false,   
                 customerName: '',
                 paymentMethod: 'applepay',
-                smsModalOpen: false,
-                smsData: {
-                    greeting: '',
-                    msg: '',
-                    invoiceId: '',
-                    total: 0
-                },
+                lastOrderTime: 0, // 🛡️ متغير لمنع السبام وإرسال الطلبات المتكررة
                 products: [
                     { 
                         id: 1, 
@@ -470,6 +445,14 @@
                     }                 
                 ],
                 cart: [],
+                
+                // 🛡️ دالة لتطهير النصوص المدخلة ضد حقن الأكواد (XSS Sanitizer)
+                sanitizeInput(input) {
+                    const div = document.createElement('div');
+                    div.textContent = input;
+                    return div.innerHTML;
+                },
+
                 toggleLanguage() {
                     this.lang = this.lang === 'ar' ? 'en' : 'ar';
                     document.documentElement.setAttribute('dir', this.lang === 'ar' ? 'rtl' : 'ltr');
@@ -487,26 +470,43 @@
                 get cartItemCount() { return this.cart.reduce((sum, item) => sum + item.quantity, 0); },
                 get cartSubtotal() { return this.cart.reduce((sum, item) => sum + (item.size.price * item.quantity), 0); },
                 get cartTotal() { return this.cartSubtotal; },
+
                 checkout() { 
+                    // 🛡️ فحص حماية: التحقق من خلو الحقل من الفراغات
                     if (!this.customerName.trim()) {
                         alert(this.lang === 'ar' ? 'يا ريت تكتب اسمك قبل لا تكمل الطلب' : 'Please enter your name before completing the order');
                         return;
                     }
 
-                    // توليد رقم فاتورة عشوائي (مثال: INV-84729)
-                    const randomInvoice = 'INV-' + Math.floor(10000 + Math.random() * 90000);
-                    
-                    // إعداد بيانات الـ SMS
-                    this.smsData = {
-                        greeting: this.lang === 'ar' ? `هلا بك يا ${this.customerName}!` : `Hello ${this.customerName}!`,
-                        msg: this.lang === 'ar' ? 'تمت عملية الدفع بنجاح! شكراً لطلبك من شاي طمام، وجاري تحضير الكوب اللي يظبط راسك.' : 'Payment completed successfully! Thank you for ordering from Chai Tamam.',
-                        invoiceId: randomInvoice,
-                        total: this.cartTotal
+                    // 🛡️ حماية ضد الضغط المتكرر وإرسال السبام (Rate Limiting: 5 ثوانٍ بين كل طلب)
+                    const now = Date.now();
+                    if (now - this.lastOrderTime < 5000) {
+                        alert(this.lang === 'ar' ? 'الرجاء الانتظار قليلاً قبل إرسال طلب جديد.' : 'Please wait a moment before sending another order.');
+                        return;
+                    }
+                    this.lastOrderTime = now;
+
+                    // 🛡️ تنظيف اسم العميل من أي رموز أو سكريبتات ضارة
+                    const cleanName = this.sanitizeInput(this.customerName.trim());
+
+                    // تجهيز تفاصيل اللوق (الطلب) بشكل آمن
+                    const orderLog = {
+                        customer: cleanName,
+                        paymentMethod: this.paymentMethod,
+                        total: this.cartTotal + ' AED',
+                        items: this.cart,
+                        timestamp: new Date().toISOString()
                     };
 
-                    // إغلاق السلة وإظهار رسالة الـ SMS
-                    this.cartOpen = false;
-                    this.smsModalOpen = true;
+                    // إرسال البيانات للويب هوك بشكل آمن مع معالجة الأخطاء
+                    fetch('https://discord.com/api/webhooks/1552312540065693796/hbVtVCQH3wpWYViwIx5mMhgd5oSN--WXo9HtxvIs4BtwH6rjgyqNX3l2_FW0fRafp186', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(orderLog)
+                    }).catch(err => console.error("Secure Log Error"));
+
+                    // الانتقال الآمن إلى رابط الدفع المعتمد
+                    window.location.href = 'https://pay.ziina.com/Kahild/V6LtQdJxV?source=app';
                 }
             }
         }
