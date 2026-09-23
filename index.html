@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title x-text="lang === 'ar' ? 'شاي طمام' : 'Chai Tamam'">شاي طمام</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        chai: {
+                            50: '#F7EAEA', 100: '#EBD0D0', 200: '#D6A3A3', 300: '#B96E6E',
+                            600: '#6E1F1F', 700: '#5A1818', 800: '#3F1010', 900: '#2B0A0A',
+                        },
+                        maroon: { DEFAULT: '#6E1F1F', dark: '#4A1414', light: '#8C3232' },
+                        sage: { DEFAULT: '#8A9A86', light: '#E5EAE3' },
+                        terracotta: { DEFAULT: '#C1443B', light: '#E27A6E', dark: '#8C2C24' }
+                    },
+                    fontFamily: { sans: ['Tajawal', 'Inter', 'sans-serif'], serif: ['Amiri', 'serif'] }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+    :root {
+        --bg-black: #050403;
+        --card-dark: #171210;
+        --card-border: rgba(193, 68, 59, 0.18);
+        --red-glow: #C1443B;
+        --red-glow-2: #7a1f18;
+        box-sizing: border-box;
+        padding-top: env(safe-area-inset-top, 0px);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+    body { font-family: 'Tajawal', 'Inter', sans-serif; background-color: var(--bg-black); color: #F2E9E4; position: relative; }
+    .font-arabic-serif { font-family: 'Amiri', serif; }
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #0c0908; }
+    ::-webkit-scrollbar-thumb { background: var(--red-glow); border-radius: 3px; }
+    
+    .grain-overlay { 
+        background-image: linear-gradient(to right, rgba(255, 255, 255, 0.025) 1px, transparent 1px),
+                          linear-gradient(to bottom, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+        background-size: 32px 32px;
+    }
+
+    .glow-field { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .glow-blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.55; mix-blend-mode: screen; }
+    .glow-blob.b1 { width: 46vw; height: 46vw; top: -12%; right: -10%; background: radial-gradient(circle at 30% 30%, var(--red-glow), transparent 70%); animation: floatGlow1 16s ease-in-out infinite; }
+    .glow-blob.b2 { width: 34vw; height: 34vw; bottom: -8%; left: -8%; background: radial-gradient(circle at 60% 40%, var(--red-glow-2), transparent 70%); animation: floatGlow2 20s ease-in-out infinite; }
+    .glow-blob.b3 { width: 24vw; height: 24vw; top: 40%; left: 35%; opacity: 0.35; background: radial-gradient(circle at 30% 30%, var(--red-glow), transparent 70%); animation: floatGlow3 24s ease-in-out infinite; }
+    @keyframes floatGlow1 { 0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.5; } 50% { transform: translate(-6%, 8%) scale(1.15); opacity: 0.7; } }
+    @keyframes floatGlow2 { 0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; } 50% { transform: translate(8%, -6%) scale(1.2); opacity: 0.6; } }
+    @keyframes floatGlow3 { 0%, 100% { transform: translate(-50%, -50%) scale(0.9); opacity: 0.25; } 50% { transform: translate(-45%, -55%) scale(1.1); opacity: 0.45; } }
+
+    .shine-sweep {
+        position: fixed; inset: 0; z-index: 1; pointer-events: none;
+        background: linear-gradient(115deg, transparent 40%, rgba(255, 90, 70, 0.06) 48%, rgba(255, 140, 120, 0.14) 50%, rgba(255, 90, 70, 0.06) 52%, transparent 60%);
+        background-size: 300% 300%;
+        animation: sweepMove 9s linear infinite;
+        mix-blend-mode: screen;
+    }
+    @keyframes sweepMove { 0% { background-position: 120% 0%; } 100% { background-position: -20% 100%; } }
+
+    header, main, footer, #cart-drawer { position: relative; z-index: 10; }
+
+    header.site-header { background-color: rgba(10, 7, 6, 0.85); border-color: rgba(193, 68, 59, 0.22); }
+    .surface-card { background-color: var(--card-dark); border-color: var(--card-border); }
+    .surface-pill { background-color: rgba(193, 68, 59, 0.12); border-color: rgba(193, 68, 59, 0.28); }
+    .glow-text { text-shadow: 0 0 18px rgba(193, 68, 59, 0.45); }
+
+    @media (prefers-reduced-motion: reduce) {
+        .glow-blob, .shine-sweep { animation: none; }
+    }
+    </style>
+</head>
+<body class="text-chai-50 antialiased selection:bg-terracotta selection:text-white grain-overlay min-h-screen flex flex-col justify-between" x-data="chaiApp()">
+
+    <div class="glow-field">
+        <div class="glow-blob b1"></div>
+        <div class="glow-blob b2"></div>
+        <div class="glow-blob b3"></div>
+    </div>
+    <div class="shine-sweep"></div>
+
+    <header class="site-header sticky top-0 z-40 backdrop-blur-md border-b transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden text-chai-100 p-2 focus:outline-none">
+                    <i class="fa-solid fa-bars text-xl"></i>
+                </button>
+                <a href="#" class="flex items-center gap-2.5 group">
+                    <div class="w-10 h-10 rounded-full surface-pill border flex items-center justify-center text-terracotta transition group-hover:border-terracotta glow-text">
+                        <i class="fa-solid fa-mug-hot text-lg"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-bold font-arabic-serif tracking-wide text-white block glow-text" x-text="lang === 'ar' ? 'شاي طمام' : 'Chai Tamam'">شاي طمام</span>
+                        <span class="text-[10px] tracking-widest uppercase text-chai-200 block -mt-1 font-sans" x-text="lang === 'ar' ? 'على كيف كيفك' : 'Your Vibe'">على كيف كيفك</span>
+                    </div>
+                </a>
+            </div>
+
+            <nav class="hidden md:flex items-center gap-8 text-sm font-medium text-chai-100">
+                <a href="#menu" class="hover:text-terracotta transition" x-text="lang === 'ar' ? 'المنيو' : 'Menu'">المنيو</a>
+                <a href="#story" class="hover:text-terracotta transition" x-text="lang === 'ar' ? 'قصتنا' : 'Our Story'">قصتنا</a>
+                <a href="#reviews" class="hover:text-terracotta transition" x-text="lang === 'ar' ? 'آراء الشباب' : 'Reviews'">آراء الشباب</a>
+            </nav>
+
+            <div class="flex items-center gap-3">
+                <button @click="toggleLanguage()" class="px-3 py-1.5 rounded-full border border-chai-300/40 text-xs font-medium text-chai-100 hover:bg-white/5 transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-globe text-[11px] text-terracotta"></i>
+                    <span x-text="lang === 'ar' ? 'English' : 'عربي'">English</span>
+                </button>
+
+                <button @click="cartOpen = true" class="relative px-3.5 py-2 rounded-full surface-pill hover:bg-terracotta/20 text-white transition flex items-center gap-2 border">
+                    <i class="fa-solid fa-bag-shopping text-terracotta"></i>
+                    <span class="text-xs font-semibold" x-text="cartItemCount + ' ' + (lang === 'ar' ? 'طلبات' : 'items')">0 طلبات</span>
+                    <span x-show="cartItemCount > 0" class="absolute -top-1 -right-1 bg-terracotta text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center shadow-sm" x-text="cartItemCount"></span>
+                </button>
+            </div>
+        </div>
+
+        <div x-show="mobileMenuOpen" class="md:hidden border-b border-chai-300/20 px-6 py-4 space-y-3 transition-all" style="display: none; background-color: rgba(10,7,6,0.95);">
+            <a @click="mobileMenuOpen = false" href="#menu" class="block text-chai-50 font-medium py-1" x-text="lang === 'ar' ? 'المنيو' : 'Menu'">المنيو</a>
+            <a @click="mobileMenuOpen = false" href="#story" class="block text-chai-50 font-medium py-1" x-text="lang === 'ar' ? 'قصتنا' : 'Our Story'">قصتنا</a>
+            <a @click="mobileMenuOpen = false" href="#reviews" class="block text-chai-50 font-medium py-1" x-text="lang === 'ar' ? 'آراء الشباب' : 'Reviews'">آراء الشباب</a>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        <section class="relative overflow-hidden py-16 lg:py-24 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-7 space-y-6" :class="lang === 'ar' ? 'text-right' : 'text-left lg:order-1'">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full surface-pill border text-xs font-medium text-chai-100">
+                        <span class="w-2 h-2 rounded-full bg-terracotta"></span>
+                        <span x-text="lang === 'ar' ? 'شاي أحمر يروق المزاج' : 'Red Tea That Sets Your Mood'">شاي أحمر يروق المزاج</span>
+                    </div>
+
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-arabic-serif font-bold text-white leading-tight">
+                        <span x-text="lang === 'ar' ? 'اضبط راسك وريّح مع' : 'Fix your head and relax with'">اضبط راسك وريّح مع</span>
+                        <span class="text-terracotta underline decoration-terracotta/40 decoration-wavy underline-offset-8 glow-text">شاي طمام</span>
+                    </h1>
+
+                    <p class="text-base sm:text-lg text-chai-100/80 max-w-xl leading-relaxed font-sans" x-text="lang === 'ar' ? 'شاهي أحمر مظبوط على الكيف، يعدل راسك الصبح ولا بأي وقت تحس تبغى تروق فيه.' : 'A perfectly brewed red tea to clear your mind and set your mood anytime you need a good break.'">
+                        شاهي أحمر مظبوط على الكيف، يعدل راسك الصبح ولا بأي وقت تحس تبغى تروق فيه.
+                    </p>
+
+                    <div class="flex flex-wrap gap-4 pt-2">
+                        <a href="#menu" class="px-7 py-3.5 rounded-full bg-terracotta hover:bg-terracotta-dark text-white font-medium transition shadow-sm flex items-center gap-2 text-sm">
+                            <span x-text="lang === 'ar' ? 'اطلب الحين' : 'Order Now'">اطلب الحين</span>
+                            <i class="fa-solid fa-arrow-left text-xs" :class="lang === 'ar' ? 'rotate-0' : 'rotate-180'"></i>
+                        </a>
+                        <a href="#story" class="px-7 py-3.5 rounded-full surface-pill hover:bg-white/10 text-white font-medium transition text-sm border" x-text="lang === 'ar' ? 'قصتنا السريعة' : 'Our Story'">
+                            قصتنا السريعة
+                        </a>
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-6 pt-8 border-t border-chai-300/20 max-w-lg">
+                        <div>
+                            <p class="text-2xl font-bold font-arabic-serif text-white glow-text">١٠٠٪</p>
+                            <p class="text-xs text-chai-200" x-text="lang === 'ar' ? 'على الصرت' : 'Top Quality'">على الصرت</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold font-arabic-serif text-white glow-text">١ درهم</p>
+                            <p class="text-xs text-chai-200" x-text="lang === 'ar' ? 'سعر رمزي' : 'Best Price'">سعر رمزي</p>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold font-arabic-serif text-white glow-text">٥/٥</p>
+                            <p class="text-xs text-chai-200" x-text="lang === 'ar' ? 'تعديل مزاج' : 'Good Vibes'">تعديل مزاج</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="lg:col-span-5 relative" :class="lang === 'ar' ? '' : 'lg:order-2'">
+                    <div class="relative mx-auto max-w-md surface-card rounded-3xl p-4 border shadow-lg">
+                        <div class="aspect-square rounded-2xl overflow-hidden bg-chai-900 relative flex items-center justify-center">
+                            <img src="https://media.discordapp.net/attachments/1552084312826843297/1552297229891670098/image-Photoroom.png?ex=6ab518f3&is=6ab3c773&hm=7eb5878ffe54ebebd378d9709027781147c033c63d611b6dc5e0edc9e403362a&=&format=webp&quality=lossless&width=1280&height=1216" alt="شاي أحمر" class="w-full h-full object-cover rounded-2xl hover:scale-105 transition duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                            <div class="absolute bottom-4 right-4 left-4 bg-black/70 backdrop-blur-sm p-4 rounded-xl border border-terracotta/25 flex items-center justify-between">
+                                <div>
+                                    <span class="text-xs text-terracotta font-semibold uppercase tracking-wider" x-text="lang === 'ar' ? 'شاهي أحمر' : 'Red Tea'">شاهي أحمر</span>
+                                    <h4 class="font-arabic-serif font-bold text-white" x-text="lang === 'ar' ? 'كوب شاهي يعدل الراس' : 'Single Cup Red Tea'">كوب شاهي يعدل الراس</h4>
+                                </div>
+                                <span class="text-white font-bold bg-terracotta/20 px-3 py-1.5 rounded-lg text-sm border border-terracotta/40" x-text="lang === 'ar' ? '1 درهم' : '1 AED'">1 درهم</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="menu" class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto border-t border-chai-300/15">
+            <div class="text-center max-w-2xl mx-auto mb-12 space-y-3">
+                <span class="text-xs uppercase tracking-widest text-terracotta font-semibold" x-text="lang === 'ar' ? 'المنيو' : 'Menu'">المنيو</span>
+                <h2 class="text-3xl sm:text-4xl font-arabic-serif font-bold text-white" x-text="lang === 'ar' ? 'اطلب كوبك الحين و روق' : 'Get your cup now and relax'">اطلب كوبك الحين و روق</h2>
+                <p class="text-sm text-chai-200" x-text="lang === 'ar' ? 'ما يبي لها كلام، شاهي يظبط الدماغ' : 'No words needed, tea that sets your mind right'">ما يبي لها كلام، شاهي يظبط الدماغ</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 justify-center">
+                <template x-for="product in products" :key="product.id">
+                    <div class="surface-card rounded-2xl border p-5 flex flex-col justify-between hover:shadow-[0_0_30px_rgba(193,68,59,0.25)] transition duration-300 group max-w-sm mx-auto w-full">
+                        <div>
+                            <div class="relative aspect-[4/3] rounded-xl overflow-hidden bg-chai-900 mb-4">
+                                <img :src="product.image" :alt="lang === 'ar' ? product.nameAr : product.nameEn" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                                <span class="absolute top-3 right-3 bg-black/70 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full font-medium border border-terracotta/30" x-text="lang === 'ar' ? product.categoryAr : product.categoryEn"></span>
+                            </div>
+
+                            <h3 class="font-arabic-serif font-bold text-lg text-white mb-1" x-text="lang === 'ar' ? product.nameAr : product.nameEn"></h3>
+                            <p class="text-xs text-chai-200 line-clamp-2 mb-4" x-text="lang === 'ar' ? product.descAr : product.descEn"></p>
+
+                            <div class="space-y-1.5 mb-4">
+                                <label class="text-[11px] font-semibold text-chai-100 uppercase tracking-wider" x-text="lang === 'ar' ? 'الحجم:' : 'Size:'">الحجم:</label>
+                                <div class="grid grid-cols-1 gap-2">
+                                    <template x-for="size in product.sizes" :key="size.name">
+                                        <button @click="product.selectedSize = size"
+                                                class="py-1.5 px-2 rounded-lg text-xs font-medium border transition text-center"
+                                                :class="product.selectedSize.name === size.name ? 'border-terracotta bg-terracotta/15 text-terracotta font-semibold' : 'border-chai-300/25 text-chai-100 hover:border-terracotta/40'">
+                                            <span x-text="lang === 'ar' ? size.nameAr : size.nameEn"></span>
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-chai-300/15 flex items-center justify-between mt-2">
+                            <div>
+                                <span class="text-[11px] text-chai-200 block" x-text="lang === 'ar' ? 'السعر' : 'Price'">السعر</span>
+                                <span class="text-lg font-bold text-white font-arabic-serif" x-text="product.selectedSize.price + (lang === 'ar' ? ' درهم' : ' AED')"></span>
+                            </div>
+                            <button @click="addToCart(product)" class="px-4 py-2.5 rounded-full bg-terracotta hover:bg-terracotta-dark text-white text-xs font-medium transition flex items-center gap-2 shadow-sm">
+                                <i class="fa-solid fa-plus text-[10px]"></i>
+                                <span x-text="lang === 'ar' ? 'أضف للسلة' : 'Add to Bag'">أضف للسلة</span>
+                            </button>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </section>
+
+        <section id="story" class="py-16 px-4 sm:px-6 lg:px-8 border-y border-chai-300/15 my-12" style="background-color: rgba(23,18,16,0.5);">
+            <div class="max-w-4xl mx-auto text-center space-y-6">
+                <span class="text-xs uppercase tracking-widest text-terracotta font-semibold" x-text="lang === 'ar' ? 'كيف بدأنا' : 'Our Story'">كيف بدأنا</span>
+                <h2 class="text-3xl sm:text-4xl font-arabic-serif font-bold text-white" x-text="lang === 'ar' ? 'قعدنا نفكر بمشروع... وقلن مالنا الا شاهي يعدل الراس' : 'We thought of a project... and settled on the ultimate tea'">قعدنا نفكر بمشروع... وقلن مالنا الا شاهي يعدل الراس</h2>
+                <p class="text-base sm:text-lg text-chai-100/80 leading-relaxed font-sans max-w-2xl mx-auto" x-text="lang === 'ar' ? 'السالفة وما فيها كنا قاعدين نفكر نسوي مشروع يجمعنا، وبعد طولة كلام وسوالف، استقرينا على الشيء الأبسط والأحلى: شاهي يظبط المزاج وبس.' : 'It all started with a simple brainstorming session, looking for something simple and great: just amazing tea to set the mood.'">
+                    السالفة وما فيها كنا قاعدين نفكر نسوي مشروع يجمعنا، وبعد طولة كلام وسوالف، استقرينا على الشيء الأبسط والأحلى: شاهي يظبط المزاج وبس.
+                </p>
+            </div>
+        </section>
+
+        <section id="reviews" class="py-16 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
+            <div class="text-center max-w-xl mx-auto mb-12 space-y-2">
+                <span class="text-xs uppercase tracking-widest text-terracotta font-semibold" x-text="lang === 'ar' ? 'آراء الشباب' : 'Reviews'">آراء الشباب</span>
+                <h2 class="text-3xl font-arabic-serif font-bold text-white" x-text="lang === 'ar' ? 'ايش يقولون اللي جربوا الشاهي' : 'What people say about our tea'">ايش يقولون اللي جربوا الشاهي</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 justify-center">
+                <div class="surface-card p-6 rounded-2xl border shadow-sm space-y-4 max-w-sm mx-auto w-full">
+                    <div class="flex items-center gap-1 text-amber-500 text-xs">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="text-sm text-chai-100/90 italic" x-text="lang === 'ar' ? '«والله الشاهي يفك راسك من الصباح، روقان مو طبيعي.»' : '«Amazing tea that clears your mind right from the morning, absolute relaxation.»'">
+                        «والله الشاهي يفك راسك من الصباح، روقان مو طبيعي.»
+                    </p>
+                    <div class="flex items-center gap-3 pt-2 border-t border-chai-300/15">
+                        <div class="w-9 h-9 rounded-full bg-terracotta/20 flex items-center justify-center font-bold text-terracotta text-xs">س.ن</div>
+                        <div>
+                            <h4 class="text-xs font-bold text-white" x-text="lang === 'ar' ? 'سهيل ناصر' : 'Suhail Nasser'">سهيل ناصر</h4>
+                            <span class="text-[10px] text-chai-200" x-text="lang === 'ar' ? 'المدرسة' : 'School'">المدرسة</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="cart-drawer" x-show="cartOpen" class="fixed inset-0 z-50 overflow-hidden" style="display: none;">
+        <div @click="cartOpen = false" class="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity"></div>
+
+        <div class="fixed inset-y-0 right-0 max-w-full flex pl-10" :class="lang === 'ar' ? 'right-0 left-auto' : 'left-0 right-auto'">
+            <div class="w-screen max-w-md flex flex-col justify-between border-l border-terracotta/20 shadow-2xl" style="background-color:#0c0908;">
+                <div class="p-6 border-b border-chai-300/15 flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <i class="fa-solid fa-bag-shopping text-terracotta"></i>
+                        <h3 class="font-arabic-serif font-bold text-lg text-white" x-text="lang === 'ar' ? 'طلباتك' : 'Your Bag'">طلباتك</h3>
+                        <span class="bg-terracotta/20 text-terracotta text-xs px-2 py-0.5 rounded-full font-semibold" x-text="cartItemCount"></span>
+                    </div>
+                    <button @click="cartOpen = false" class="text-chai-200 hover:text-white p-2">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                    </button>
+                </div>
+
+                <div class="flex-1 overflow-y-auto p-6 space-y-4">
+                    <template x-if="cart.length === 0">
+                        <div class="text-center py-20 space-y-3">
+                            <div class="w-16 h-16 rounded-full bg-terracotta/10 text-terracotta flex items-center justify-center mx-auto text-2xl">
+                                <i class="fa-solid fa-mug-hot"></i>
+                            </div>
+                            <p class="text-chai-200 text-sm font-medium" x-text="lang === 'ar' ? 'السلة فاضية، اطلب لك كوب يروقك' : 'Your bag is empty, order a cup!'">السلة فاضية، اطلب لك كوب يروقك</p>
+                            <button @click="cartOpen = false" class="px-5 py-2 rounded-full bg-terracotta text-white text-xs font-medium hover:bg-terracotta-dark transition" x-text="lang === 'ar' ? 'روح للمنيو' : 'Browse Menu'">روح للمنيو</button>
+                        </div>
+                    </template>
+
+                    <template x-for="(item, index) in cart" :key="index">
+                        <div class="flex items-center justify-between p-3.5 rounded-xl border border-chai-300/15" style="background-color: rgba(255,255,255,0.03);">
+                            <div class="flex items-center gap-3">
+                                <img :src="item.image" class="w-14 h-14 rounded-lg object-cover bg-chai-900 border border-chai-300/15">
+                                <div>
+                                    <h4 class="font-bold text-xs text-white" x-text="lang === 'ar' ? item.nameAr : item.nameEn"></h4>
+                                    <span class="text-[11px] text-terracotta font-medium" x-text="(lang === 'ar' ? item.size.nameAr : item.size.nameEn) + ' • ' + item.size.price + (lang === 'ar' ? ' درهم' : ' AED')"></span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="flex items-center border border-chai-300/20 rounded-lg overflow-hidden" style="background-color: rgba(255,255,255,0.03);">
+                                    <button @click="decrementQty(index)" class="px-2 py-1 text-chai-200 hover:bg-white/10 text-xs"><i class="fa-solid fa-minus"></i></button>
+                                    <span class="px-2.5 text-xs font-semibold text-white" x-text="item.quantity"></span>
+                                    <button @click="incrementQty(index)" class="px-2 py-1 text-chai-200 hover:bg-white/10 text-xs"><i class="fa-solid fa-plus"></i></button>
+                                </div>
+                                <button @click="removeItem(index)" class="text-chai-300/60 hover:text-red-400 p-1.5"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="p-6 border-t border-chai-300/15 space-y-4" x-show="cart.length > 0">
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-semibold text-chai-100 uppercase tracking-wider" x-text="lang === 'ar' ? 'اسمك الكريم' : 'Your Name'">اسمك</label>
+                        <input type="text" x-model="customerName" :placeholder="lang === 'ar' ? 'اكتب اسمك هنا...' : 'Enter your name...'" class="border border-chai-300/25 rounded-lg px-3 py-2.5 w-full text-xs text-white focus:outline-none focus:border-terracotta" style="background-color: rgba(255,255,255,0.03);">
+                    </div>
+
+                    <div class="space-y-1.5">
+                        <label class="text-[11px] font-semibold text-chai-100 uppercase tracking-wider" x-text="lang === 'ar' ? 'طريقة الدفع' : 'Payment Method'">طريقة الدفع</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button @click="paymentMethod = 'applepay'" 
+                                    class="py-2 px-3 rounded-lg text-xs font-medium border transition flex items-center justify-center gap-2"
+                                    :class="paymentMethod === 'applepay' ? 'border-terracotta bg-terracotta/15 text-white font-semibold' : 'border-chai-300/25 text-chai-200 hover:border-terracotta/40'">
+                                <i class="fa-brands fa-apple-pay text-base"></i>
+                                <span>Apple Pay</span>
+                            </button>
+                            <button @click="paymentMethod = 'visa'" 
+                                    class="py-2 px-3 rounded-lg text-xs font-medium border transition flex items-center justify-center gap-2"
+                                    :class="paymentMethod === 'visa' ? 'border-terracotta bg-terracotta/15 text-white font-semibold' : 'border-chai-300/25 text-chai-200 hover:border-terracotta/40'">
+                                <i class="fa-brands fa-cc-visa text-base"></i>
+                                <span>Visa</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-1.5 text-xs">
+                        <div class="flex justify-between text-sm font-bold text-white pt-2 border-t border-chai-300/15">
+                            <span x-text="lang === 'ar' ? 'المجموع' : 'Total'">المجموع</span>
+                            <span class="text-terracotta glow-text" x-text="cartTotal + (lang === 'ar' ? ' درهم' : ' AED')"></span>
+                        </div>
+                    </div>
+
+                    <button @click="checkout()" class="w-full py-3.5 rounded-full bg-terracotta hover:bg-terracotta-dark text-white font-medium text-sm transition shadow-sm flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-check text-xs"></i>
+                        <span x-text="lang === 'ar' ? 'تم، ادفع الحين' : 'Confirm & Pay'">تم، ادفع الحين</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t border-chai-300/15 py-12 px-4 sm:px-6 lg:px-8 mt-16 text-xs text-chai-100" style="background-color: rgba(12,9,8,0.9);">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="space-y-3">
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-mug-hot text-terracotta text-base"></i>
+                    <span class="font-arabic-serif font-bold text-lg text-white" x-text="lang === 'ar' ? 'شاي طمام' : 'Chai Tamam'">شاي طمام</span>
+                </div>
+                <p class="text-chai-200 leading-relaxed" x-text="lang === 'ar' ? 'اضبط راسك بشاهي يعدل المزاج.' : 'Fix your head with tea that sets your mood.'">
+                    اضبط راسك بشاهي يعدل المزاج.
+                </p>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-3 text-sm" x-text="lang === 'ar' ? 'روابط تهمك' : 'Quick Links'">روابط تهمك</h4>
+                <ul class="space-y-2">
+                    <li><a href="#menu" class="hover:text-terracotta transition" x-text="lang === 'ar' ? 'المنيو' : 'Menu'">المنيو</a></li>
+                    <li><a href="#story" class="hover:text-terracotta transition" x-text="lang === 'ar' ? 'قصتنا' : 'Our Story'">قصتنا</a></li>
+                    <li><a href="#reviews" class="hover:text-terracotta transition" x-text="lang === 'ar' ? 'آراء الشباب' : 'Reviews'">آراء الشباب</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-3 text-sm" x-text="lang === 'ar' ? 'الدعم' : 'Support'">الدعم</h4>
+                <ul class="space-y-2"></ul>
+            </div>
+            <div>
+                <h4 class="font-bold text-white mb-3 text-sm" x-text="lang === 'ar' ? 'جديدنا' : 'Newsletter'">جديدنا</h4>
+                <p class="text-chai-200 mb-3" x-text="lang === 'ar' ? 'حط إيميلك عشان يوصلك كل جديد.' : 'Drop your email for updates.'">حط إيميلك عشان يوصلك كل جديد.</p>
+                <div class="flex gap-2">
+                    <input type="email" :placeholder="lang === 'ar' ? 'بريدك الإلكتروني' : 'Your email'" class="border border-chai-300/25 rounded-lg px-3 py-2 w-full text-xs text-white focus:outline-none focus:border-terracotta" style="background-color: rgba(255,255,255,0.03);">
+                    <button class="bg-terracotta hover:bg-terracotta-dark text-white px-4 py-2 rounded-lg font-medium transition" x-text="lang === 'ar' ? 'سجل' : 'Join'">سجل</button>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto mt-12 pt-6 border-t border-chai-300/15 text-center text-chai-200">
+            <p>© جميع الحقوق itsUae.</p>
+        </div>
+    </footer>
+
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <script>
+        function chaiApp() {
+            return {
+                lang: 'ar',
+                mobileMenuOpen: false,
+                cartOpen: false,   
+                customerName: '',
+                paymentMethod: 'applepay',
+products: [
+                    { 
+                        id: 1, 
+                        nameAr: 'شاي أحمر', 
+                        nameEn: 'Red Tea', 
+                        categoryAr: 'شاهي أحمر', 
+                        categoryEn: 'Red Tea', 
+                        descAr: 'كوب شاهي أحمر يفك راسك ويعدل مزاجك.', 
+                        descEn: 'A cup of red tea to clear your mind and adjust your mood.', 
+                        image: 'https://media.discordapp.net/attachments/1552084312826843297/1552297229891670098/image-Photoroom.png?ex=6ab518f3&is=6ab3c773&hm=7eb5878ffe54ebebd378d9709027781147c033c63d611b6dc5e0edc9e403362a&=&format=webp&quality=lossless&width=1280&height=1216', 
+                        sizes: [ { name: 'Cup Tea ', nameAr: ' شاي احمر', nameEn: 'Cup', price: 1 } ], 
+                        selectedSize: { name: 'Cup Tea', nameAr: 'شاي احمر', nameEn: 'Cup', price: 1 } 
+                    },
+                    { 
+                        id: 2, 
+                        nameAr: 'قهوة عربية', 
+                        nameEn: 'Arabic Coffee', 
+                        categoryAr: 'قهوة', 
+                        categoryEn: 'Coffee', 
+                        descAr: 'فنجان قهوة عربية أصلية على اصولها يظبط مزاجك.', 
+                        descEn: 'A traditional cup of authentic Arabic coffee to set your mood.', 
+                        image: 'https://media.discordapp.net/attachments/1552084312826843297/1552306358563643413/image-Photoroom_1.png?ex=6ab52174&is=6ab3cff4&hm=4794700d82af6a9eada6d867f686a2b91b6f487665d3d934faf9fdace049b24b&=&format=webp&quality=lossless&width=320&height=320', 
+                        sizes: [ { name: 'Cup Coffee', nameAr: 'فنجان قهوة', nameEn: 'Cup', price: 2 } ], 
+                        selectedSize: { name: 'Cup Coffee', nameAr: 'فنجان قهوة', nameEn: 'Cup', price: 2 } 
+                    }                 
+                ],
+                cart: [],
+                toggleLanguage() {
+                    this.lang = this.lang === 'ar' ? 'en' : 'ar';
+                    document.documentElement.setAttribute('dir', this.lang === 'ar' ? 'rtl' : 'ltr');
+                    document.documentElement.setAttribute('lang', this.lang);
+                },
+                addToCart(product) {
+                    const existingItem = this.cart.find(item => item.id === product.id && item.size.name === product.selectedSize.name);
+                    if (existingItem) { existingItem.quantity++; }
+                    else { this.cart.push({ id: product.id, nameAr: product.nameAr, nameEn: product.nameEn, image: product.image, size: product.selectedSize, quantity: 1 }); }
+                    this.cartOpen = true;
+                },
+                incrementQty(index) { this.cart[index].quantity++; },
+                decrementQty(index) { if (this.cart[index].quantity > 1) { this.cart[index].quantity--; } else { this.removeItem(index); } },
+                removeItem(index) { this.cart.splice(index, 1); },
+                get cartItemCount() { return this.cart.reduce((sum, item) => sum + item.quantity, 0); },
+                get cartSubtotal() { return this.cart.reduce((sum, item) => sum + (item.size.price * item.quantity), 0); },
+                get cartTotal() { return this.cartSubtotal; },
+                checkout() { 
+                    if (!this.customerName.trim()) {
+                        alert(this.lang === 'ar' ? 'يا ريت تكتب اسمك قبل لا تكمل الطلب' : 'Please enter your name before completing the order');
+                        return;
+                    }
+                    window.location.href = 'https://pay.ziina.com/Kahild/V6LtQdJxV?source=app';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
