@@ -81,6 +81,46 @@
 </head>
 <body class="text-chai-50 antialiased selection:bg-terracotta selection:text-white grain-overlay min-h-screen flex flex-col justify-between" x-data="chaiApp()">
 
+    <!-- محاكي رسالة الـ SMS -->
+    <div x-show="smsModalOpen" style="display: none;" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="surface-card border border-terracotta/40 rounded-3xl p-6 max-w-md w-full shadow-2xl space-y-5 relative animate-in fade-in zoom-in duration-300">
+            <div class="flex items-center justify-between border-b border-chai-300/15 pb-4">
+                <div class="flex items-center gap-2.5">
+                    <div class="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+                        <i class="fa-solid fa-comment-sms text-lg"></i>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-sm text-white" x-text="lang === 'ar' ? 'رسالة نصية جديدة (SMS)' : 'New SMS Message'">رسالة نصية جديدة</h4>
+                        <span class="text-[10px] text-chai-200">Chai Tamam • الآن</span>
+                    </div>
+                </div>
+                <button @click="smsModalOpen = false" class="text-chai-200 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-black/40 border border-chai-300/15 space-y-3 font-sans text-xs text-chai-100">
+                <p class="font-semibold text-white" x-text="smsData.greeting"></p>
+                <p x-text="smsData.msg"></p>
+                <div class="pt-2 border-t border-chai-300/15 space-y-1 text-[11px] text-chai-200">
+                    <div class="flex justify-between">
+                        <span x-text="lang === 'ar' ? 'رقم الفاتورة:' : 'Invoice No:'"></span>
+                        <span class="font-mono text-terracotta font-bold" x-text="smsData.invoiceId"></span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span x-text="lang === 'ar' ? 'المبلغ المدفوع:' : 'Paid Amount:'"></span>
+                        <span class="text-white font-bold" x-text="smsData.total + ' درهم'"></span>
+                    </div>
+                </div>
+            </div>
+
+            <button @click="smsModalOpen = false; window.location.href = 'https://pay.ziina.com/Kahild/V6LtQdJxV?source=app'" class="w-full py-3 rounded-xl bg-terracotta hover:bg-terracotta-dark text-white font-medium text-xs transition shadow-sm flex items-center justify-center gap-2">
+                <span x-text="lang === 'ar' ? 'متابعة للدفع الإلكتروني' : 'Continue to Payment'"></span>
+                <i class="fa-solid fa-arrow-left text-xs" :class="lang === 'ar' ? '' : 'rotate-180'"></i>
+            </button>
+        </div>
+    </div>
+
     <div class="glow-field">
         <div class="glow-blob b1"></div>
         <div class="glow-blob b2"></div>
@@ -158,21 +198,6 @@
                         <a href="#story" class="px-7 py-3.5 rounded-full surface-pill hover:bg-white/10 text-white font-medium transition text-sm border" x-text="lang === 'ar' ? 'قصتنا السريعة' : 'Our Story'">
                             قصتنا السريعة
                         </a>
-                    </div>
-
-                    <div class="grid grid-cols-3 gap-6 pt-8 border-t border-chai-300/20 max-w-lg">
-                        <div>
-                            <p class="text-2xl font-bold font-arabic-serif text-white glow-text">١٠٠٪</p>
-                            <p class="text-xs text-chai-200" x-text="lang === 'ar' ? 'على الصرت' : 'Top Quality'">على الصرت</p>
-                        </div>
-                        <div>
-                            <p class="text-2xl font-bold font-arabic-serif text-white glow-text">١ درهم</p>
-                            <p class="text-xs text-chai-200" x-text="lang === 'ar' ? 'سعر رمزي' : 'Best Price'">سعر رمزي</p>
-                        </div>
-                        <div>
-                            <p class="text-2xl font-bold font-arabic-serif text-white glow-text">٥/٥</p>
-                            <p class="text-xs text-chai-200" x-text="lang === 'ar' ? 'تعديل مزاج' : 'Good Vibes'">تعديل مزاج</p>
-                        </div>
                     </div>
                 </div>
                 <div class="lg:col-span-5 relative" :class="lang === 'ar' ? '' : 'lg:order-2'">
@@ -411,7 +436,14 @@
                 cartOpen: false,   
                 customerName: '',
                 paymentMethod: 'applepay',
-products: [
+                smsModalOpen: false,
+                smsData: {
+                    greeting: '',
+                    msg: '',
+                    invoiceId: '',
+                    total: 0
+                },
+                products: [
                     { 
                         id: 1, 
                         nameAr: 'شاي أحمر', 
@@ -460,7 +492,21 @@ products: [
                         alert(this.lang === 'ar' ? 'يا ريت تكتب اسمك قبل لا تكمل الطلب' : 'Please enter your name before completing the order');
                         return;
                     }
-                    window.location.href = 'https://pay.ziina.com/Kahild/V6LtQdJxV?source=app';
+
+                    // توليد رقم فاتورة عشوائي (مثال: INV-84729)
+                    const randomInvoice = 'INV-' + Math.floor(10000 + Math.random() * 90000);
+                    
+                    // إعداد بيانات الـ SMS
+                    this.smsData = {
+                        greeting: this.lang === 'ar' ? `هلا بك يا ${this.customerName}!` : `Hello ${this.customerName}!`,
+                        msg: this.lang === 'ar' ? 'تمت عملية الدفع بنجاح! شكراً لطلبك من شاي طمام، وجاري تحضير الكوب اللي يظبط راسك.' : 'Payment completed successfully! Thank you for ordering from Chai Tamam.',
+                        invoiceId: randomInvoice,
+                        total: this.cartTotal
+                    };
+
+                    // إغلاق السلة وإظهار رسالة الـ SMS
+                    this.cartOpen = false;
+                    this.smsModalOpen = true;
                 }
             }
         }
